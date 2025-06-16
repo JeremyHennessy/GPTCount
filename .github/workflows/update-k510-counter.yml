@@ -1,4 +1,4 @@
-name: Update k510 Counter Static HTML
+name: Increment and Update k510 Counter
 
 on:
   schedule:
@@ -15,20 +15,14 @@ jobs:
       - name: Fetch and increment counter from Upstash
         id: get_and_inc
         run: |
-          echo "UPSTASH_URL: ${{ secrets.UPSTASH_URL }}"
-          echo "UPSTASH_TOKEN: ${#${{ secrets.UPSTASH_TOKEN }}} chars"
-
           # Fetch the current value
           response=$(curl -s -H "Authorization: Bearer ${{ secrets.UPSTASH_TOKEN }}" \
             "${{ secrets.UPSTASH_URL }}/get/k510-global-counter")
-          echo "Upstash response: $response"
           value=$(echo "$response" | jq -r '.result')
           if [[ "$value" == "null" || -z "$value" ]]; then value=0; fi
-          echo "Current counter: $value"
 
           # Increment
           new_value=$(( value + 5 ))
-          echo "Incremented counter: $new_value"
 
           # Store new value
           curl -s -X POST -H "Authorization: Bearer ${{ secrets.UPSTASH_TOKEN }}" \
@@ -63,6 +57,7 @@ jobs:
           git add k510-static.html
           git diff --cached --quiet || git commit -m "Update k510-static.html [skip ci]"
           git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+          git pull --rebase origin main
           git push origin HEAD:${GITHUB_REF#refs/heads/}
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
