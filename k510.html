@@ -16,17 +16,70 @@
   <button onclick="resetCounter()">Reset</button>
   <script>
     const key = "k510-counter";
-    function getCount() { return parseInt(localStorage.getItem(key) || "0"); }
-    function setCount(val) { localStorage.setItem(key, val); }
+    const timeKey = "k510-timestamp";
+    const increment = 5;
+    const intervalMs = 15 * 60 * 1000; // 15 minutes
+
+    function getCount() {
+      return parseInt(localStorage.getItem(key) || "0");
+    }
+    function setCount(val) {
+      localStorage.setItem(key, val);
+    }
+    function getTimestamp() {
+      return parseInt(localStorage.getItem(timeKey) || "0");
+    }
+    function setTimestamp(val) {
+      localStorage.setItem(timeKey, val);
+    }
+    function updateCounterDisplay(val) {
+      document.getElementById("counter").textContent = val;
+    }
     function resetCounter() {
       setCount(0);
-      document.getElementById("counter").textContent = "0";
+      setTimestamp(Date.now());
+      updateCounterDisplay(0);
     }
-    // On load, increment counter by 5
-    window.onload = function() {
-      let count = getCount() + 5;
+
+    // Calculate how many intervals have passed and update accordingly
+    function updateCounterOnLoad() {
+      let count = getCount();
+      let lastTime = getTimestamp();
+      let now = Date.now();
+      if (!lastTime) {
+        lastTime = now;
+        setTimestamp(now);
+      }
+      let intervalsPassed = Math.floor((now - lastTime) / intervalMs);
+      if (intervalsPassed > 0) {
+        count += increment * intervalsPassed;
+        setCount(count);
+        setTimestamp(lastTime + intervalsPassed * intervalMs);
+      }
+      updateCounterDisplay(count);
+    }
+
+    // Set up a timer to increment counter every 15 minutes
+    function setupTimer() {
+      let lastTime = getTimestamp();
+      let now = Date.now();
+      let msToNextInterval = intervalMs - ((now - lastTime) % intervalMs);
+      setTimeout(function() {
+        incrementCounter();
+        setInterval(incrementCounter, intervalMs);
+      }, msToNextInterval);
+    }
+
+    function incrementCounter() {
+      let count = getCount() + increment;
       setCount(count);
-      document.getElementById("counter").textContent = count;
+      setTimestamp(Date.now());
+      updateCounterDisplay(count);
+    }
+
+    window.onload = function() {
+      updateCounterOnLoad();
+      setupTimer();
     };
   </script>
 </body>
