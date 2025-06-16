@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Drug Application Mapping Counter</title>
+  <title>Drug Application Mapping (Global Counter)</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 40px; }
     .counter-value { font-size: 2.5em; margin: 20px 0; }
@@ -11,76 +11,94 @@
   </style>
 </head>
 <body>
-  <h1>Drug Application Mapping</h1>
-  <div class="counter-value" id="counter">0</div>
+  <h1>Drug Application Mapping (Global Counter)</h1>
+  <div class="counter-value" id="counter">Loading...</div>
   <button onclick="resetCounter()">Reset</button>
   <script>
-    const key = "drug-counter";
-    const timeKey = "drug-timestamp";
+    const UPSTASH_URL = "https://noted-emu-25994.upstash.io";
+    const UPSTASH_TOKEN = "AWWKAAIjcDE1MjgzNTYxN2Y5OTk0YjYxOGIyOTYzYWE4ZGY3MzRjNXAxMA";
+    const COUNTER_KEY = "drug-global-counter";
+    const TIMESTAMP_KEY = "drug-timestamp";
     const increment = 5;
-    const intervalMs = 15 * 60 * 1000; // 15 minutes
+    const intervalMs = 15 * 60 * 1000;
 
-    function getCount() {
-      return parseInt(localStorage.getItem(key) || "0");
+    async function fetchCounter() {
+      const res = await fetch(`${UPSTASH_URL}/get/${COUNTER_KEY}`, {
+        headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` }
+      });
+      const data = await res.json();
+      return parseInt(data.result) || 0;
     }
-    function setCount(val) {
-      localStorage.setItem(key, val);
+
+    async function setCounter(val) {
+      await fetch(`${UPSTASH_URL}/set/${COUNTER_KEY}/${val}`, {
+        headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` }
+      });
     }
-    function getTimestamp() {
-      return parseInt(localStorage.getItem(timeKey) || "0");
+
+    async function fetchTimestamp() {
+      const res = await fetch(`${UPSTASH_URL}/get/${TIMESTAMP_KEY}`, {
+        headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` }
+      });
+      const data = await res.json();
+      return parseInt(data.result) || 0;
     }
-    function setTimestamp(val) {
-      localStorage.setItem(timeKey, val);
+
+    async function setTimestamp(val) {
+      await fetch(`${UPSTASH_URL}/set/${TIMESTAMP_KEY}/${val}`, {
+        headers: { Authorization: `Bearer ${UPSTASH_TOKEN}` }
+      });
     }
+
     function updateCounterDisplay(val) {
       document.getElementById("counter").textContent = val;
     }
-    function resetCounter() {
-      setCount(0);
-      setTimestamp(Date.now());
+
+    async function resetCounter() {
+      await setCounter(0);
+      await setTimestamp(Date.now());
       updateCounterDisplay(0);
     }
 
-    // Calculate how many intervals have passed and update accordingly
-    function updateCounterOnLoad() {
-      let count = getCount();
-      let lastTime = getTimestamp();
+    async function updateCounterOnLoad() {
+      let count = await fetchCounter();
+      let lastTime = await fetchTimestamp();
       let now = Date.now();
       if (!lastTime) {
         lastTime = now;
-        setTimestamp(now);
+        await setTimestamp(now);
       }
       let intervalsPassed = Math.floor((now - lastTime) / intervalMs);
       if (intervalsPassed > 0) {
         count += increment * intervalsPassed;
-        setCount(count);
-        setTimestamp(lastTime + intervalsPassed * intervalMs);
+        await setCounter(count);
+        await setTimestamp(lastTime + intervalsPassed * intervalMs);
       }
       updateCounterDisplay(count);
     }
 
-    // Set up a timer to increment counter every 15 minutes
-    function setupTimer() {
-      let lastTime = getTimestamp();
+    async function incrementCounter() {
+      let count = await fetchCounter();
+      count += increment;
+      await setCounter(count);
+      await setTimestamp(Date.now());
+      updateCounterDisplay(count);
+    }
+
+    async function setupTimer() {
+      let lastTime = await fetchTimestamp();
       let now = Date.now();
       let msToNextInterval = intervalMs - ((now - lastTime) % intervalMs);
-      setTimeout(function() {
-        incrementCounter();
+      setTimeout(async function() {
+        await incrementCounter();
         setInterval(incrementCounter, intervalMs);
       }, msToNextInterval);
     }
 
-    function incrementCounter() {
-      let count = getCount() + increment;
-      setCount(count);
-      setTimestamp(Date.now());
-      updateCounterDisplay(count);
-    }
-
-    window.onload = function() {
-      updateCounterOnLoad();
+    window.onload = async function() {
+      await updateCounterOnLoad();
       setupTimer();
-    };
+    }
   </script>
 </body>
 </html>
