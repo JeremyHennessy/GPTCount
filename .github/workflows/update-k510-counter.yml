@@ -21,11 +21,12 @@ jobs:
           value=$(echo "$response" | jq -r '.result')
           if [[ "$value" == "null" || -z "$value" ]]; then value=0; fi
           echo "counter=$value" >> $GITHUB_ENV
-
+          export counter=$value
+      
       - name: Increment and update counter in Upstash
         id: set_counter
         run: |
-          new_value=$(( ${{ env.counter }} + 5 ))
+          new_value=$(( ${counter:-0} + 5 ))  # Default to 0 if unset
           echo "Incremented counter: $new_value"
           curl -s -X POST -H "Authorization: Bearer ${{ secrets.UPSTASH_TOKEN }}" \
             "${{ secrets.UPSTASH_URL }}/set/k510-global-counter/$new_value"
