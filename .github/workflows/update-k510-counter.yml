@@ -17,7 +17,7 @@ jobs:
         run: |
           result=$(curl -s -H "Authorization: Bearer ${{ secrets.UPSTASH_TOKEN }}" \
             "${{ secrets.UPSTASH_URL }}/get/k510-global-counter" | jq -r '.result')
-          echo "COUNTER=$result" >> $GITHUB_ENV
+          echo "counter=$result" >> $GITHUB_ENV
 
       - name: Generate static HTML
         run: |
@@ -34,7 +34,7 @@ jobs:
           </head>
           <body>
             <h1>510(k) Mappings (Static Counter)</h1>
-            <div class="counter-value">${{ env.COUNTER }}</div>
+            <div class="counter-value">${{ env.counter }}</div>
             <p>Last updated: $(date -u)</p>
           </body>
           </html>
