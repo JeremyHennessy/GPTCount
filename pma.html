@@ -1,0 +1,33 @@
+<!-- pma.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PMA Mappings Counter</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 40px; }
+    .counter-value { font-size: 2.5em; margin: 20px 0; }
+    button { padding: 8px 16px; font-size: 16px; border-radius: 5px; border: 1px solid #3498db; background: #3498db; color: white; cursor: pointer; }
+    button:hover { background: #217dbb; }
+  </style>
+</head>
+<body>
+  <h1>PMA Mappings</h1>
+  <div class="counter-value" id="counter">0</div>
+  <button onclick="resetCounter()">Reset</button>
+  <script>
+    const key = "pma-counter";
+    function getCount() { return parseInt(localStorage.getItem(key) || "0"); }
+    function setCount(val) { localStorage.setItem(key, val); }
+    function resetCounter() {
+      setCount(0);
+      document.getElementById("counter").textContent = "0";
+    }
+    window.onload = function() {
+      let count = getCount() + 5;
+      setCount(count);
+      document.getElementById("counter").textContent = count;
+    };
+  </script>
+</body>
+</html>
