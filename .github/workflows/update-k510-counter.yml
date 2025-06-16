@@ -21,6 +21,7 @@ jobs:
 
       - name: Generate static HTML
         run: |
+          echo "Counter is: ${{ env.counter }}"
           cat > k510-static.html <<EOF
           <!DOCTYPE html>
           <html lang="en">
