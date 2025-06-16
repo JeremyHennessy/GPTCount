@@ -3,7 +3,7 @@ name: Update k510 Counter Static HTML
 on:
   schedule:
     - cron: '*/15 * * * *'   # Every 15 minutes
-  workflow_dispatch:         # Allows manual run
+  workflow_dispatch:
 
 jobs:
   update-html:
@@ -19,9 +19,11 @@ jobs:
             "${{ secrets.UPSTASH_URL }}/get/k510-global-counter" | jq -r '.result')
           echo "counter=$result" >> $GITHUB_ENV
 
+      - name: Debug print
+        run: echo "Fetched counter value is ${{ env.counter }}"
+
       - name: Generate static HTML
         run: |
-          echo "Counter is: ${{ env.counter }}"
           cat > k510-static.html <<EOF
           <!DOCTYPE html>
           <html lang="en">
