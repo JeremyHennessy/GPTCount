@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mapping Counters</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; padding: 40px; }
+    a { display: block; margin: 24px 0; font-size: 2em; color: #3498db; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <h1>Choose a Mapping Counter</h1>
+  <a href="k510.html">510(k) Mappings</a>
+  <a href="pma.html">PMA Mappings</a>
+  <a href="drug.html">Drug Application Mapping</a>
+</body>
+</html>
