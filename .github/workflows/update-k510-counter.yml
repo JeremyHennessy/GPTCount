@@ -15,10 +15,13 @@ jobs:
       - name: Fetch counter from Upstash
         id: fetch_counter
         run: |
-          result=$(curl -s -H "Authorization: Bearer ${{ secrets.UPSTASH_TOKEN }}" \
-            "${{ secrets.UPSTASH_URL }}/get/k510-global-counter" | jq -r '.result')
+          response=$(curl -s -H "Authorization: Bearer ${{ secrets.UPSTASH_TOKEN }}" \
+            "${{ secrets.UPSTASH_URL }}/get/k510-global-counter")
+          echo "Upstash response: $response"
+          result=$(echo "$response" | jq -r '.result')
+          echo "Parsed result: $result"
           echo "counter=$result" >> $GITHUB_ENV
-
+    
       - name: Debug print
         run: echo "Fetched counter value is ${{ env.counter }}"
 
