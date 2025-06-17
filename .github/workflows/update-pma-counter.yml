@@ -1,9 +1,7 @@
 name: Increment and Update PMA Counter
 
 on:
-  schedule:
-    - cron: '*/15 * * * *'
-  workflow_dispatch:
+   workflow_dispatch:
 
 jobs:
   update-html:
