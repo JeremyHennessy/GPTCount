@@ -1,8 +1,6 @@
 name: Increment and Update k510 Counter
 
 on:
-  schedule:
-    - cron: '*/15 * * * *'
   workflow_dispatch:
 
 jobs:
