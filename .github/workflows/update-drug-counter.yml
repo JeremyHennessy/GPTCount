@@ -61,6 +61,7 @@ jobs:
           git add drug-static.html
           git diff --cached --quiet || git commit -m "Update drug-static.html [skip ci]"
           git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+          git pull --rebase origin main
           git push origin HEAD:${GITHUB_REF#refs/heads/}
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
