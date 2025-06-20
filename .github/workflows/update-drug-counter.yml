@@ -54,14 +54,31 @@ jobs:
           </html>
           EOF
 
-      - name: Commit and push if changed
+      - name: Commit and robust push if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add drug-static.html
           git diff --cached --quiet || git commit -m "Update drug-static.html [skip ci]"
           git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
-          git pull --rebase origin main
-          git push origin HEAD:${GITHUB_REF#refs/heads/}
+
+          n=0
+          until [ $n -ge 5 ]
+          do
+            git pull --rebase origin main || true
+            if git push origin HEAD:${GITHUB_REF#refs/heads/}; then
+              echo "Push succeeded!"
+              break
+            else
+              echo "Push failed, retrying in 10 seconds..."
+              n=$((n+1))
+              sleep 10
+            fi
+          done
+
+          if [ $n -eq 5 ]; then
+            echo "Push failed after 5 attempts"
+            exit 1
+          fi
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
